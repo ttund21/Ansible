@@ -24,6 +24,6 @@ Vagrant.configure("2") do |config|
 	config.vm.define "webserver" do |webserver|
 		webserver.vm.network "private_network", ip: "192.168.254.201"
 		webserver.vm.hostname = "webserver"
-                webserver.vm.box      = "ubuntu/trusty64"
+                webserver.vm.box      = "ubuntu/xenial64"
 	end
 end
