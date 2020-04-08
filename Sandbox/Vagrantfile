@@ -13,15 +13,15 @@ Vagrant.configure("2") do |config|
                         sudo yum install vim git zsh wget python3 ansible -y --quiet
                         wget -q https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh -O /home/vagrant/install.sh
 			chmod +x /home/vagrant/install.sh
-			echo "autocmd FileType yaml setlocal ai ts=2 sw=2 et\n:set cursorcolumn" > /home/vagrant/.vimrc
-			echo "\n----------Use ./install.sh to install Oh My Sh----------\nUser: vagrant\nPass: vagrant\n-----------------------------------------------------------\n" > /etc/motd
+			echo "autocmd FileType yaml setlocal ai ts=2 sw=2 et\n:set cursorcolumn\n:set nu" > /home/vagrant/.vimrc
+			echo "\n----------Use ./install.sh to install Oh My Sh----------\nUser: vagrant\nPass: vagrant\n--------------------------------------------------------\n" > /etc/motd
 		SHELL
 	end
 
 	config.vm.define "node1" do |node1|
 		node1.vm.network "private_network", ip: "192.168.254.200"
 		node1.vm.hostname = "node1"
-                node1.vm.box      = "ubuntu/xenial64"
+                node1.vm.box      = "ubuntu/bionic64"
 	end
 
 	config.vm.define "node2" do |node2|
