@@ -1,0 +1,19 @@
+---
+  - name: Atualização de Pacotes
+    become: True 
+    hosts: all
+    tasks:
+    
+      - name: Atualizando familia Debian
+        apt:
+          update_cache: 'yes'
+          upgrade: 'yes'
+        when: ansible_os_family == "Debian"
+
+      - name: Atualizando familia RedHat 
+        yum:
+          name: '*'
+          state: latest
+          update_cache: 'yes'
+        when: ansible_os_family == "RedHat"
+...

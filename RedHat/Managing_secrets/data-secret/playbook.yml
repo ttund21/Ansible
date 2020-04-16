@@ -1,0 +1,13 @@
+---
+  - name: Create a user
+    become: yes
+    hosts: node2
+    vars_files:
+      - group_vars/users_secrets.yml
+    tasks:
+      
+      - name: Create user from secret.yml
+        user:
+          name: "{{ username }}"
+          password: "{{ password }}"
+...

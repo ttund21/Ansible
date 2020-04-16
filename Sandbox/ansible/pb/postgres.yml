@@ -1,0 +1,21 @@
+---
+  - name: Instalar o PostgreSQL
+    become: yes
+    hosts: databases
+    tasks:
+      
+      - name: Baixando postgreSQL
+        yum:
+          name:
+            - postgresql-server
+            - postgresql-contrib
+
+      - name: Iniciando banco de dados
+        shell: postgresql-setup initdb
+
+      - name: Systemctl enable e start no postgreSQL
+        service:
+          name: postgresql
+          state: started
+          enabled: yes
+...

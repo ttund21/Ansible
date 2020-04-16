@@ -1,0 +1,58 @@
+---
+  - name: Instalar o Docker
+    become: yes
+    hosts: webservers
+    vars:
+      varOsUser: vagrant # Seu usuario do sistema operacional
+    tasks:
+      
+      - name: Removendo velhas versoes do docker
+        apt:
+          name:
+            - docker
+            - docker-engine
+            - docker.io
+            - containerd
+            - runc
+          update_cache: yes
+          state: absent
+
+      - name: Instalando dependencias para instalacao
+        apt:
+          name:
+            - apt-transport-https
+            - ca-certificates
+            - curl
+            - gnupg-agent
+            - software-properties-common
+
+      - name: Adicionando GPG key oficial do Docker
+        apt_key:
+          url: https://download.docker.com/linux/ubuntu/gpg
+
+      - name: Adicionando repositorio Docker
+        apt_repository:
+          repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable
+
+      - name: Baixando e instalando o Docker
+        apt:
+          name:
+            - docker-ce
+            - docker-ce-cli
+            - containerd.io
+          update_cache: yes
+
+# Configurando o Docker para rodar no usuario normal sem o sudo
+
+      - name: Criando um grupo docker
+        group:
+          name: docker
+
+      - name: Adicionando usuario ao grupo
+        user: 
+          name: '{{ varOsUser }}'
+          groups: docker
+
+      - name: Reiniciando sistema 
+        reboot:
+...
