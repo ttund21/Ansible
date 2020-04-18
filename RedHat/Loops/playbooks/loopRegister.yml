@@ -1,0 +1,21 @@
+---
+  - name: Loop Register
+    hosts: localhost
+    gather_facts: no
+    
+    tasks:
+      
+      - name: Looping echo task
+        shell: "echo -e This is my item: {{ item }}"
+        loop:
+          - one
+          - two
+        register: echo_results
+
+      - name: Show echo_results
+        debug: 
+          msg: "{{ item }}"
+        loop:
+          - "{{ echo_results.results[0].cmd }}"
+          - "{{ echo_results.results[1].cmd }}"
+...

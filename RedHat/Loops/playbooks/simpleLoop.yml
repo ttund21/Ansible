@@ -1,0 +1,28 @@
+---
+  - name: Update
+    become: yes
+    gather_facts: no
+    hosts: node1
+    
+    vars:
+      packages:
+        - tree
+        - nano
+    
+    tasks:
+      
+      - name: Instalando pacotes usando loop
+        apt:
+          name: "{{ item }}"
+        loop: "{{ packages }}"
+
+      - name: Usando loop composto  
+        apt:
+          name: "{{ item.name }}"
+          state: "{{ item.state }}"
+        loop:
+          - name: nano
+            state: absent
+          - name: vim
+            state: present
+...
