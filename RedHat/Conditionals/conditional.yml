@@ -1,0 +1,31 @@
+---
+  - name: Teste de condicional
+    hosts: node1
+    become: yes
+    vars:
+      distros:
+        - Debian
+        - Ubuntu
+    tasks:
+
+      - name: Teste
+        apt:
+          name: "{{ web }}"
+        when: web is defined
+
+      - name: ping
+        ping:
+        when: ansible_facts.distribution in distros
+
+      - name: Usando condicional and no modo lista
+        debug:
+          msg: "hello world"
+        when:
+          - true
+          - false
+
+      - name: Usando condicionais agrupadas
+        debug:
+          msg: "Agrupadas"
+        when: ( true and true ) or ( true and false )
+...

@@ -3,7 +3,7 @@
 ## Loop
 
 + Loop pode ser usado para executar o mesmo módulo sem ter que criá-lo novamente;
-+ O loop é representado pela variável **item** e pela chave **loop**;
++ O loop é representado pela variável **item** e pela palavra-chave **loop**;
 + Exemplo de uso:
 
   ```loop
