@@ -1,0 +1,24 @@
+---
+  - name: MariaDB server is running
+    hosts: all 
+    become: yes
+    vars:
+      mariadb_packages:
+        - mariadb-server
+        - MySQL-python
+    tasks:
+
+      - name: MariaDB package are installed
+        yum:
+          name: "{{ item }}"
+          state: present
+        loop: "{{ mariadb_packages }}"
+        when: ansible_facts.os_family == "RedHat"
+
+      - name: Start MariaDB service
+        service:
+          name: mariadb
+          state: started
+          enabled: true
+        when: ansible_facts.os_family == "RedHat"
+...
