@@ -1,0 +1,35 @@
+---
+  - name: teste de handler
+    hosts: node1
+    become: yes
+    vars:
+      web: apache2
+    tasks:
+
+      - name: Apache Installed
+        apt:
+          name: "{{ web }}"
+        notify: restart apache
+
+      - name: Apache Activated
+        service:
+          name: apache2
+          state: started
+          enabled: true
+
+      - name: Apache main page changed
+        template:
+          src: /home/vagrant/ansible/playbook/Handlers/index.html
+          dest: /var/www/html/index.html
+        notify: restart apache
+
+      - name: Ping
+        ping:
+    
+    handlers:
+      
+      - name: restart apache
+        service:
+          name: apache2
+          state: restarted
+...
