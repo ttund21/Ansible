@@ -1,0 +1,42 @@
+---
+  - name: MariaDB server is installed
+    become: true
+    gather_facts: false
+    hosts: node2
+    vars:
+      yumRepo: /home/vagrant/ansible/atividades/implementing-handlers/MariaDB.repo
+      dbPackage:
+        - MariaDB-server
+        - MariaDB-client
+        - MySQL-python
+      dbService: mariadb
+    tasks:
+      
+      - name: Add MariaDB repo
+        template:
+          src: "{{ yumRepo }}"
+          dest: /etc/yum.repos.d/MariaDB.repo
+
+      - name: MariaDB installed
+        yum:
+          name: "{{ item }}"
+          state: present
+          update_cache: true
+        loop: "{{ dbPackage }}"
+        notify: 
+          - start mariadb
+          - set db password
+
+    handlers:
+
+      - name: start mariadb
+        service:
+          name: "{{ dbService }}"
+          state: started
+          enabled: true
+
+      - name: set db password
+        mysql_user:
+          name: root
+          password: redhat
+...
