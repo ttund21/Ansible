@@ -1,0 +1,60 @@
+---
+  - name: Manage tasks errors
+    hosts: node1
+    become: yes
+    force_handlers: yes
+    vars:
+      package:
+        - vim
+        - sl
+        - tree
+    
+    tasks:
+
+      - name: Handler
+        shell: /bin/true
+        notify: Test
+
+      - name: An error with ignore
+        shell: blablabla
+        ignore_errors: true
+
+      - name: Specifying Task Failure Condition 
+        shell: blablabla
+        register: command_output
+        failed_when: "'FAILED!' in command_output.stderr"
+
+      - name: Specifying  
+        shell: echo "ping" > /home/vagrant/ping        
+        changed_when: false 
+
+      - name: Preparing OS
+        block:
+          - name: Packages
+            apt:
+              name: "{{ item }}"
+              state: latest
+            loop: "{{ package }}"
+
+          - name: Purposeful error
+            shell: blablabla
+            
+        rescue:
+          - name: Revert package
+            apt:
+              name: "{{ item }}"
+              state: absent
+            loop: "{{ package }}"
+            
+        always:
+          - name: Always Block
+            debug:
+              msg: "Howdy"
+        when: ansible_facts.distribution == "Ubuntu"
+
+    handlers:
+
+      - name: Test
+        debug:
+          msg: "Handler"
+...
