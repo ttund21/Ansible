@@ -3,15 +3,18 @@
     hosts: localhost
     gather_facts: false
     vars:
-      - profile: aws
-      - region: us-east-1
+      - profile: aws # Profile defino do seu diretorio /home/seuUser/.aws/credentials
+      - region: us-east-1 # Norte da Virginia
+      - user: vagrant
+      - group: vagrant
     vars_prompt:
-      - name: state
+      - name: state # Aqui vai dar um input para o usuario e armazenar na variavel state. Semelhando ao input() no Python ou Console.ReadLine() no C#
         prompt: "Escreva absent para destruir"
         private: false
     
     tasks:
-      
+
+# Lembre-se que o ansible executa suas tasks na ordem declarada, então deve-se CRIAR "de baixo para cima", Ex: Cria-se a vpc depois a subnet e não ao contrário  
       - name: VPC Created
         ec2_vpc_net:
           name: AnsibleVPC
@@ -37,7 +40,7 @@
         ec2_vpc_subnet:
           vpc_id: "{{ vpcReg.vpc.id }}"
           cidr: 172.30.1.0/24
-          map_public: true
+          map_public: true # Ativa a distribuição de ip público
           region: "{{ region }}"
           profile: "{{ profile }}"
           az: us-east-1a
@@ -71,8 +74,8 @@
           rules:
             - proto: tcp
               ports:
-                - 80
-                - 22
+                - 80 # HTTP
+                - 22 # SSH
               cidr_ip: 0.0.0.0/0
               rule_desc: Permite a entrada de qualquer ip nas portas 80 e 22
           tags:
@@ -80,8 +83,8 @@
             Organization: AnsPlay
         register: sgReg
             
-      - name: Aws KeyPair
-        block:
+      - name: Aws KeyPair 
+        block: # Aqui vai ser criado um bloco lógico de código, com a finalidade de facilitar a leitura do código.
           - name: KeyPair Created
             ec2_key:
               name: ansible
@@ -91,17 +94,17 @@
 
           - name: KeyPair Saved
             copy:
-              content: "{{ keyReg.key.private_key }}"
+              content: "{{ keyReg.key.private_key }}" # Usa-se 'content' e não 'src' porque é uma extração de conteudo e não copia de arquivo
               dest: ansible.pem
               remote_src: true
-              owner: vagrant
-              group: vagrant
+              owner: "{{ user }}"
+              group: "{{ group }}"
               mode: '0400'
-            when: keyReg.msg == "key pair created" 
+            when: keyReg.msg == "key pair created"  # Esse bloco de código só será ativado se a saída do bloco a acima for "key pair created", porque após criado o modulo ec2_key não retorna mais o valor da chave 
 
 
       - name: Ec2
-        block:
+        block: # Aqui vai ser criado um bloco lógico de código, com a finalidade de facilitar a leitura do código.
           - name: Webserver(Ec2) Created
             ec2_instance:
               name: "AnsibleWebServer"
@@ -122,18 +125,20 @@
 
           - name: Public Ip
             debug:
-              msg: "{{ ec2Reg.instances[0].public_ip_address }}"
+              msg: "{{ ec2Reg.instances[0].public_ip_address }}" # Aqui o instances está instances[0] pq esse modulo cria listas para as máquinas criadas, provalvementedeve permitir criar mais de uma máquina
 
-
-# Bloco de codigo que vai ser ativado quando a variavel state for igual a absent
+      
       - name: Destroy
-        block:
-          
+        block: # Aqui é um bloco lógico, aonde só vai ser executado se a condicional "state == "absent"" for verdadeira, ou seja, true
+
+# Aqui é o inverso, destroi-se "de cima para baixo", Ex: Primeiro destroi-se a subnet depois a vpc, ou irá dar erro de dependencia
+# Basicamente é só o código de criação de cabeça para baixo
+
           - name: Webserver(Ec2) Destroyed
             ec2_instance:
               name: "AnsibleWebServer"
               key_name: "{{ keyReg.key.name }}"
-              state: "terminated"
+              state: "terminated" # O modulo ec2_instance só apaga a ec2 usando o valor terminated
               vpc_subnet_id: "{{ subReg.subnet.id }}"
               profile: "{{ profile }}"
               region: "{{ region }}"
@@ -201,5 +206,5 @@
               state: "{{ state }}"
               region: "{{ region }}"
               profile: "{{ profile }}"
-        when: state == "absent"
+        when: state == "absent" # Variavel 'state' recebe o input do usuario no inicio da execução do playbook
 ...
