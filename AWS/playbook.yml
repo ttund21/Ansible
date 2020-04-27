@@ -1,0 +1,205 @@
+---
+  - name: AWS
+    hosts: localhost
+    gather_facts: false
+    vars:
+      - profile: aws
+      - region: us-east-1
+    vars_prompt:
+      - name: state
+        prompt: "Escreva absent para destruir"
+        private: false
+    
+    tasks:
+      
+      - name: VPC Created
+        ec2_vpc_net:
+          name: AnsibleVPC
+          cidr_block: 172.30.0.0/16
+          region: "{{ region }}"
+          profile: "{{ profile }}"
+          tags:
+            Name: AnsibleVPC
+            Organization: AnsPlay
+        register: vpcReg
+
+      - name: IGW Created
+        ec2_vpc_igw:
+          vpc_id: "{{ vpcReg.vpc.id }}"
+          region: "{{ region }}"
+          profile: "{{ profile }}"
+          tags:
+            Name: AnsibleIGW
+            Organization: AnsPlay
+        register: igwReg
+
+      - name: Subnet Created
+        ec2_vpc_subnet:
+          vpc_id: "{{ vpcReg.vpc.id }}"
+          cidr: 172.30.1.0/24
+          map_public: true
+          region: "{{ region }}"
+          profile: "{{ profile }}"
+          az: us-east-1a
+          tags:
+            Name: AnsibleSubnet
+            Organization: AnsPlay
+        register: subReg    
+
+      - name: Route Table Created
+        ec2_vpc_route_table:
+          vpc_id: "{{ vpcReg.vpc.id }}"
+          profile: "{{ profile }}"
+          region: "{{ region }}"
+          subnets:
+            - "{{ subReg.subnet.id }}"
+          routes:
+            - dest: 0.0.0.0/0
+              gateway_id: "{{ igwReg.gateway_id }}"
+          tags:
+            Name: AnsiblePublicRt
+            Organization: AnsPlay
+        register: rtReg
+
+      - name: Web Security Group Created
+        ec2_group:
+          name: Web Security Group 
+          description: Abrir as portas 80 e 22
+          profile: "{{ profile }}"
+          region: "{{ region }}"
+          vpc_id: "{{ vpcReg.vpc.id }}"
+          rules:
+            - proto: tcp
+              ports:
+                - 80
+                - 22
+              cidr_ip: 0.0.0.0/0
+              rule_desc: Permite a entrada de qualquer ip nas portas 80 e 22
+          tags:
+            Name: AnsibleWebSG
+            Organization: AnsPlay
+        register: sgReg
+            
+      - name: Aws KeyPair
+        block:
+          - name: KeyPair Created
+            ec2_key:
+              name: ansible
+              profile: "{{ profile }}"
+              region: "{{ region }}"
+            register: keyReg
+
+          - name: KeyPair Saved
+            copy:
+              content: "{{ keyReg.key.private_key }}"
+              dest: ansible.pem
+              remote_src: true
+              owner: vagrant
+              group: vagrant
+              mode: '0400'
+            when: keyReg.msg == "key pair created" 
+
+
+      - name: Ec2
+        block:
+          - name: Webserver(Ec2) Created
+            ec2_instance:
+              name: "AnsibleWebServer"
+              key_name: "{{ keyReg.key.name }}"
+              vpc_subnet_id: "{{ subReg.subnet.id }}"
+              profile: "{{ profile }}"
+              region: "{{ region }}"
+              security_group: "{{ sgReg.group_id }}"
+              image_id: ami-0915e09cc7ceee3ab
+              instance_type: t2.micro
+              network:
+                assing_public_ip: true
+              wait: true
+              tags:
+                Name: AnsibleWebServer
+                Organization: AnsPlay
+            register: ec2Reg
+
+          - name: Public Ip
+            debug:
+              msg: "{{ ec2Reg.instances[0].public_ip_address }}"
+
+
+# Bloco de codigo que vai ser ativado quando a variavel state for igual a absent
+      - name: Destroy
+        block:
+          
+          - name: Webserver(Ec2) Destroyed
+            ec2_instance:
+              name: "AnsibleWebServer"
+              key_name: "{{ keyReg.key.name }}"
+              state: "terminated"
+              vpc_subnet_id: "{{ subReg.subnet.id }}"
+              profile: "{{ profile }}"
+              region: "{{ region }}"
+              security_group: "{{ sgReg.group_id }}"
+              image_id: ami-0915e09cc7ceee3ab
+              instance_type: t2.micro
+              network:
+                assing_public_ip: true
+              wait: true
+              tags:
+                Name: AnsibleWebServer
+                Organization: AnsPlay
+
+          - name: KeyPair Destroyed
+            ec2_key:
+              name: ansible
+              profile: "{{ profile }}"
+              region: "{{ region }}"
+              state: "{{ state }}"
+
+          - name: Web Security Group Destroyed
+            ec2_group:
+              name: Web Security Group 
+              description: Abrir as portas 80 e 22
+              profile: "{{ profile }}"
+              region: "{{ region }}"
+              state: "{{ state }}"
+              vpc_id: "{{ vpcReg.vpc.id }}"
+
+          - name: Route Table Destroyed
+            ec2_vpc_route_table:
+              vpc_id: "{{ vpcReg.vpc.id }}"
+              profile: "{{ profile }}"
+              state: "{{ state }}"
+              region: "{{ region }}"
+              subnets:
+                - "{{ subReg.subnet.id }}"
+              routes:
+                - dest: 0.0.0.0/0
+                  gateway_id: "{{ igwReg.gateway_id }}"
+              tags:
+                Name: AnsiblePublicRt
+                Organization: AnsPlay
+
+          - name: Subnet Destroyed
+            ec2_vpc_subnet:
+              vpc_id: "{{ vpcReg.vpc.id }}"
+              cidr: 172.30.1.0/24
+              region: "{{ region }}"
+              state: "{{ state }}"
+              profile: "{{ profile }}"
+              az: us-east-1a
+          
+          - name: IGW Destroyed
+            ec2_vpc_igw:
+              vpc_id: "{{ vpcReg.vpc.id }}"
+              region: "{{ region }}"
+              state: "{{ state }}"
+              profile: "{{ profile }}"
+
+          - name: VPC Destroyed
+            ec2_vpc_net:
+              name: AnsibleVPC
+              cidr_block: 172.30.0.0/16
+              state: "{{ state }}"
+              region: "{{ region }}"
+              profile: "{{ profile }}"
+        when: state == "absent"
+...
