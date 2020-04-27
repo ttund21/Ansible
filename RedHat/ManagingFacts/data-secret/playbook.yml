@@ -1,0 +1,17 @@
+---
+  - name: Install web aplication
+    become: yes
+    hosts: node2
+    tasks:
+
+      - name: Install httpd
+        yum:
+          name: "{{ ansible_facts.ansible_local.custom.general.package }}"
+          state: latest
+
+      - name: Start the service
+        service:
+          name: "{{ ansible_facts.ansible_local.custom.general.service }}"
+          state: "{{ ansible_facts.ansible_local.custom.general.state }}"
+          enabled: "{{ ansible_facts.ansible_local.custom.general.enabled }}"
+...
