@@ -2,8 +2,8 @@
 
 ## Objetivo do Playbook
 
-+ Provisionar uma estrutura básica com ansible; 
-+ Diagrama da estrutura que será provisionada:
++ Provisionar uma infraestrutura básica com ansible; 
++ Diagrama:
 
 ![Diagrama](Diagrama.jpg)
 
@@ -16,7 +16,7 @@
 
 ### Código
 
-### Index
+#### Index
 
 1. [Inicio](#1º-Bloco)
 2. [VPC](#2º-Bloco)
