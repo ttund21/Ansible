@@ -93,3 +93,81 @@
   ```
 
 + **<1>**: Será criado uma sub-rede, utilizando o módulo [ec2\_vpc\_subnet](https://docs.ansible.com/ansible/latest/modules/ec2_vpc_subnet_module.html).
+
+#### 5º Bloco:
+
+  ```5
+        - name: Route Table Created
+          ec2_vpc_route_table: #<1>
+            vpc_id: "{{ vpcReg.vpc.id }}"
+            profile: "{{ profile }}"
+            region: "{{ region }}"
+            subnets:
+              - "{{ subReg.subnet.id }}"
+            routes:
+              - dest: 0.0.0.0/0
+                gateway_id: "{{ igwReg.gateway_id }}"
+            tags:
+              Name: AnsiblePublicRt
+              Organization: AnsPlay
+          register: rtReg
+  ```
+
++ **<1>**: Vai ser criado uma tabela de rota, aonde qualquer ip pode ter acesso ao internet gateway e a subnet criada vai ser anexada a essa tabela. Foi utilzado o módulo [ec2\_vpc\_route\_table](https://docs.ansible.com/ansible/latest/modules/ec2_vpc_route_table_module.html).
+
+#### 6º Bloco:
+
+  ```6
+        - name: Web Security Group Created
+          ec2_group: #<1>
+            name: Web Security Group
+            description: Abrir as portas 80 e 22
+            profile: "{{ profile }}"
+            region: "{{ region }}"
+            vpc_id: "{{ vpcReg.vpc.id }}"
+            rules:
+              - proto: tcp
+                ports:
+                  - 80 
+                  - 22 
+                cidr_ip: 0.0.0.0/0
+                rule_desc: Permite a entrada de qualquer ip nas portas 80 e 22
+            tags:
+              Name: AnsibleWebSG
+              Organization: AnsPlay
+          register: sgReg
+  ```
+
++ **<1>**: Será criado um firewall virtual para as instâncias, onde será permitido a entrada de qualquer ip nas portas 80(HTTP) e 22(SSH), foi usado o módulo [ec2\_group](https://docs.ansible.com/ansible/latest/modules/ec2_group_module.html). 
+
+#### 7º Bloco:
+
+  ```7
+        - name: Aws KeyPair
+          block: #<1>
+            - name: KeyPair Created
+              ec2_key: #<2>
+                name: ansible
+                profile: "{{ profile }}"
+                region: "{{ region }}"
+              register: keyReg
+
+            - name: KeyPair Saved
+              copy: #<3>
+                content: "{{ keyReg.key.private_key }}"
+                dest: ansible.pem
+                remote_src: true
+                owner: "{{ user }}"
+                group: "{{ group }}"
+                mode: '0400'
+              when: keyReg.msg == "key pair created" #<4>
+  ```
+
++ **<1>**: O [block](https://docs.ansible.com/ansible/latest/user_guide/playbooks_blocks.html) é utilizado para agrupar lógicamente as tasks, aqui foi utilizado para deixar o código mais legível;
++ **<2>**: Irá ser criado uma chave ssh para posteriomente ter acesso a instancia, módulo usado [ec2\_key](https://docs.ansible.com/ansible/latest/modules/ec2_key_module.html)i;
++ **<3>**: Será copiada a chave .pem e armazenada no diretório atual;
++ **<4>**: Uma condicional aonde o bloco de código *KeyPair Saved* só será executado quando *keyReg.msg == "key pair created"*, condicionais são representadas pela palavra-chave [when](https://docs.ansible.com/ansible/latest/user_guide/playbooks_conditionals.html);
+
+
+
+
