@@ -16,6 +16,19 @@
 
 ### Código
 
+### Index
+
+1. [Inicio](#1º-Bloco)
+2. [VPC](#2º-Bloco)
+3. [Internet Gateway](#3º-Bloco)
+4. [Subnet](#4º-Bloco)
+5. [Route Table](#5º-Bloco)
+6. [Security Group](#6º-Bloco)
+7. [Key Pair](#7º-Bloco)
+8. [Ec2](#8º-Bloco)
+9. [Destruindo Infraestrutura](#9º-Bloco)
+
+
 #### 1º Bloco:
 
   ```1
@@ -279,6 +292,6 @@
           when: state == "absent"
   ```
 
-+ **<all>**: Esse bloco inteiro foi criado para destruição da infraestrutura criada;
-+ **<all>**: Quando o usuário escrever *absent* na execução do playbook, essa informção será armazenada na variável *state* e então esse bloco inteiro passará por uma condicional, onde será true se *state == "absent"*;
-+ **<all>**: Então a partir de adição de uma linha chamada **state:** nos módulos, será ordenado que seja destruido o que foi criado.  
++ Esse bloco inteiro foi criado para destruição da infraestrutura criada;
++ Quando o usuário escrever *absent* na execução do playbook, essa informção será armazenada na variável *state* e então esse bloco inteiro passará por uma condicional, onde será true se *state == "absent"*;
++ Então a partir de adição de uma linha chamada **state:** nos módulos, será ordenado que seja destruido o que foi criado.  
