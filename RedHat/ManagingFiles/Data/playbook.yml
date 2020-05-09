@@ -1,0 +1,61 @@
+---
+  - name: Managing Files
+    become: True
+    hosts: node1
+    gather_facts: False
+    tasks:
+
+      - name: Touch a file a set permissions
+        file:
+          path: /home/vagrant/file.txt
+          owner: vagrant
+          group: vagrant
+          mode: 0660
+          state: touch
+
+      - name: Copy a file copy.txt to node1
+        copy:
+          src: copy.txt
+          dest: /home/vagrant/copy.txt
+          owner: vagrant
+          group: vagrant
+          force: false # Não irá forçar a sobreposição
+
+      - name: Retrieve node1.file from node1
+        fetch:
+          src: "/home/vagrant/node1.file"
+          dest: "/home/vagrant/ansible/RedHat/ManageFile"
+
+      - name: Add additional lines to a file.txt
+        lineinfile:
+          path: /home/vagrant/file.txt
+          line: 'Adicionando uma linha'
+          state: present
+
+      - name: Add additional lines to a file.txt
+        blockinfile:
+          path: /home/vagrant/file.txt
+          block: | # Usado para quebrar linhas
+            Uma linha
+            Duas linhas
+            Três linhas
+          state: present 
+
+      - name: Verify the checksum of a file
+        block:
+          - name: Using stat
+            stat:
+              path: /home/vagrant/file.txt
+              checksum_algorithm: md5
+            register: statResult
+
+          - name: Checksum
+            debug:
+              msg: "The checksum of the file is {{ statResult.stat.checksum }}"
+
+      - name: Synchronize local file to remote host
+        synchronize:
+          src: synchronize.txt
+          dest: /home/vagrant/synchronize.txt
+      
+...
