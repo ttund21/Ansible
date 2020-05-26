@@ -85,4 +85,29 @@
   O senhor está usando o sistema operacional: Ubuntu.
   ```
 
+## Ansible Managed
 
++ Para evitar que alguém modifique um template implantado pelo ansible é uma boa prática por um comentário no inicio do arquivo, indicando que não é para ser editado manualmente;
++ Um jeito para fazer isso é usar o "Ansible Managed" que é uma string que pode ser armazenada em uma variável no arquivo **ansible.cfg**;
++ Descomente ou adicione a linha a abaixo no arquivo ansible.cfg:
+
+  ```ansibleManaged
+  ansible_managed = Ansible managed
+  ```
+
++ E no inicio do seu template adicione a linha:
+
+  ```ansibleManagedTemplate
+  # {{ ansible_managed }}
+  ```
+
++ Exemplo da saída:
+
+  ```templateAnsibleManaged
+  # Ansible managed
+  Ola, João,
+ 
+  O senhor está usando o sistema operacional: Ubuntu.
+  ```
+
+## Estruturas de controle
