@@ -162,3 +162,6 @@
 + Então numero é igual a 0 e foi exibida a frase.
 
 ## Filtros de variáveis
+
++ Jinja2 disponibiliza alguns filtros para as variáveis;
++ Segue os link da documentação: [Jinja2 filters](https://ansible-docs.readthedocs.io/zh/stable-2.0/rst/playbooks_filters.html).
