@@ -111,3 +111,54 @@
   ```
 
 ## Estruturas de controle
+
++ Com o Jinja pode-se usar estruturas de controles como loop e condicionais.
+
+### Loops
+
++ Jinja2 usa o loop **for** para estruturas de repetição;
++ Exemplo:
+  
+  ```jinjaLoopFor
+  # JINJA2
+  {% for produto in compras %}
+    {{ produto }}
+  {% endfor %}
+
+  # YAML FILE
+  compras:
+    - Maçã
+    - Banana
+    - Laranja
+
+  # RENDER
+    Maçã
+    Banana
+    Laranja
+  ```
+
++ No exemplo acima o *loop for* irá pecorrer todos os itens da variável, do tipo lista, *compras*;
++ E irá exibir todos os valares através da variável *produto*.
+
+### Condicionais
+
++ O jinja2 usa o **if** para testar uma condição, que lhe dar a possibilidade de adicionar x linha, caso a condição seja verdadeira;
++ Exemplo:
+
+  ```jinjaIf
+  # JINJA
+  {% if numero == 0 %}
+    A condição é verdadeira.
+  {% endif %}
+
+  # YAML FILE
+  numero: 0
+
+  # RENDER
+    A condição é verdadeira.
+  ```
+
++ No exemplo acima atraves do *if* o jinja testou que se a variável numero for igual a 0 exiba "A condição é verdadeira.";
++ Então numero é igual a 0 e foi exibida a frase.
+
+## Filtros de variáveis
