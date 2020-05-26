@@ -8,7 +8,8 @@
 4. [Handling Task Failure](https://github.com/ttund21/Ansible/blob/master/RedHat/ManagingTasksErrors)
 5. [Managing Secrets](https://github.com/ttund21/Ansible/tree/master/RedHat/ManagingSecrets)
 6. [Managing Facts](https://github.com/ttund21/Ansible/tree/master/RedHat/ManagingFacts)
-6. [Managing Files](https://github.com/ttund21/Ansible/tree/master/RedHat/ManagingFiles)
+7. [Managing Files](https://github.com/ttund21/Ansible/tree/master/RedHat/ManagingFiles)
+8. [Deploying Custom Files With Jinja2 Templates](https://github.com/ttund21/Ansible/tree/master/RedHat/DeployCustomFilesWJinja2)
 
 ## Provisionamentos na AWS
 

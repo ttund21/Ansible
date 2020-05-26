@@ -76,3 +76,13 @@
             dest: /home/vagrant/HelloWorld.txt
   ...
   ```
+
++ Output:
+
+  ```templateOutput
+  Ola, João,
+
+  O senhor está usando o sistema operacional: Ubuntu.
+  ```
+
+
