@@ -1,0 +1,13 @@
+---
+  - name: Renderizando Template Jinja
+    hosts: node1
+    become: True
+    vars:
+      - usuario: "João"
+    tasks:
+  
+      - name: Template Renderizado
+        template:
+          src: template.j2
+          dest: /home/vagrant/HelloWorld.txt
+...
