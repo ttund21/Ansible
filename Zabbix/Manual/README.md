@@ -59,3 +59,6 @@
   $ sudo systemctl enable zabbix-server zabbix-agent apache2
   ```
 
+9. Agora só configura o frontend acessando pelo navegador, http://IpDaMaquina/zabbix;
+
+10. Após configura o **usuario** padrão é **Admin** e a **senha** é **zabbix**.
